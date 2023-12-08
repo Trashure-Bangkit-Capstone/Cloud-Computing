@@ -39,19 +39,19 @@ router.post('/orders', async(req, res) => {
     let hargaPerKg;
   
     switch (jenis_sampah) {
-      case 'Minyak':
+      case 'Kertas':
         points = 100;
         hargaPerKg = 9500;
         break;
-      case 'Logam':
+      case 'Botol Plastik':
         points = 150;
         hargaPerKg = 13000;
         break;
-      case 'Kertas':
+      case 'Botol Kaca':
         points = 70;
         hargaPerKg = 5000;
         break;
-      case 'Organik':
+      case 'Kaleng':
         points = 50;
         hargaPerKg = 3000;
         break;
@@ -170,23 +170,6 @@ router.get('/orders/:id/lacak', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
   });
-  
-  // GET (total pendapatan points setiap user) url: http://localhost:3000/order/users/:username/totalpoints
-//   router.get('/users/:username/totalpoints', async (req, res) => {
-//     const {username} = req.params;
-  
-//     try {
-//       let pesananuser = await orders.findAll({ where: { username } });
-//       const totalPoints = pesananuser.reduce((acc, order) => {
-//         const { berat_sampah, points } = order;
-//         return acc + berat_sampah * points;
-//       }, 0);
-  
-//       res.json({ totalPoints });
-//     } catch (error) {
-//       res.status(500).json({ error: 'Internal server error' });
-//     }
-//   });
 
 // POST (memberi status orderan "selesai") url: http://localhost:3000/order/orders/:id/selesai
 router.post('/orders/:id/selesai', async (req, res) => {
@@ -323,19 +306,19 @@ router.put('/orders/:id', async (req, res) => {
 
     // Update hargaPerKg and points based on jenis_sampah
     switch (order.jenis_sampah) {
-      case 'Minyak':
+      case 'Kertas':
         order.points = 100;
         order.hargaPerKg = 9500;
         break;
-      case 'Logam':
+      case 'Botol Plastik':
         order.points = 150;
         order.hargaPerKg = 13000;
         break;
-      case 'Kertas':
+      case 'Botol Kaca':
         order.points = 70;
         order.hargaPerKg = 5000;
         break;
-      case 'Organik':
+      case 'Kaleng':
         order.points = 50;
         order.hargaPerKg = 3000;
         break;
