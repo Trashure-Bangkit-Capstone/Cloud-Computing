@@ -188,4 +188,182 @@ router.get('/orders/:id/lacak', async (req, res) => {
 //     }
 //   });
 
+// POST (memberi status orderan "selesai") url: http://localhost:3000/order/orders/:id/selesai
+router.post('/orders/:id/selesai', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    let order = await orders.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order tidak ditemukan' });
+    }
+
+    if (order.status_pemesanan === 'Selesai') {
+      return res.status(400).json({ error: 'Order telah selesai' });
+    }
+
+    order.status_pemesanan = 'Selesai';
+    await order.save();
+
+    return res.json({ message: 'Transaksi berhasil! Tunggu yaaa, pengepul sampah kamu lagi di jalan menuju rumahmu', data:order });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//  POST (memberi status orderan "pengecekan") url: http://localhost:3000/order/orders/:id/pengecekan
+router.post('/orders/:id/pengecekan', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    let order = await orders.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order tidak ditemukan' });
+    }
+
+    if (order.status_pemesanan === 'Pengecekan') {
+      return res.status(400).json({ error: 'Order telah diperiksa' });
+    }
+
+    order.status_pemesanan = 'Pengecekan';
+    await order.save();
+
+    return res.json({ message: 'Transaksi berhasil! Tunggu yaaa, pesanan kamu sedang dalam tahap pengecekan', data:order });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST (memberi status orderan "diproses") url: http://localhost:3000/order/orders/:id/diproses
+router.post('/orders/:id/diproses', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    let order = await orders.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order tidak ditemukan' });
+    }
+
+    if (order.status_pemesanan === 'Diproses') {
+      return res.status(400).json({ error: 'Order telah diproses' });
+    }
+
+    order.status_pemesanan = 'Diproses';
+    await order.save();
+
+    return res.json({ message: 'Transaksi berhasil! Tunggu yaaa, pesanan kamu sedang diproses', data:order });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// POST (memberi status orderan "dibatalkan") url: http://localhost:3000/order/orders/:id/dibatalkan
+router.post('/orders/:id/dibatalkan', async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    let order = await orders.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ error: 'Order tidak ditemukan' });
+    }
+
+    if (order.status_pemesanan === 'Dibatalkan') {
+      return res.status(400).json({ error: 'Order telah dibatalkan' });
+    }
+
+    order.status_pemesanan = 'Dibatalkan';
+    await order.save();
+
+    return res.json({ message: 'Orderan kamu berhasil dibatalkan', data:order });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// PUT (update orderan by id) url: http://localhost:3000/order/orders/:id
+router.put('/orders/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const schema = {
+    username: 'string|optional',
+    email: 'string|min:1',
+    jenis_sampah: 'string|min:1',
+    berat_sampah: 'number|positive',
+    lokasi_pengepul: 'string|min:1',
+    lokasi_user: 'string|min:1',
+    catatan: 'string|optional'
+  }
+
+  // validate body request
+  const validate = v.validate(req.body, schema);
+
+  if (validate.length) {
+    return res.status(400).json(validate);
+  }
+
+  try {
+    let order = await orders.findByPk(id);
+    if (!order) {
+      res.status(404).json({ error: 'Order tidak ditemukan' });
+      return;
+    }
+
+    // Update order
+    order.username = req.body.username;
+    order.email = req.body.email;
+    order.jenis_sampah = req.body.jenis_sampah;
+    order.berat_sampah = req.body.berat_sampah;
+    order.lokasi_pengepul = req.body.lokasi_pengepul;
+    order.lokasi_user = req.body.lokasi_user;
+    order.catatan = req.body.catatan;
+
+    // Update hargaPerKg and points based on jenis_sampah
+    switch (order.jenis_sampah) {
+      case 'Minyak':
+        order.points = 100;
+        order.hargaPerKg = 9500;
+        break;
+      case 'Logam':
+        order.points = 150;
+        order.hargaPerKg = 13000;
+        break;
+      case 'Kertas':
+        order.points = 70;
+        order.hargaPerKg = 5000;
+        break;
+      case 'Organik':
+        order.points = 50;
+        order.hargaPerKg = 3000;
+        break;
+      default:
+        order.points = 0;
+        order.hargaPerKg = 0;
+        break;
+    }
+
+    order = await order.save();
+
+    res.json({ message: 'Order kamu berhasil diupdate!', data: order });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+//DELETE (menghapus orderan by id) url: http://localhost:3000/order/orders/:id
+router.delete('/orders/:id', async (req, res) => {
+  const id = parseInt(req.params.id);
+    let order = await orders.findByPk(id);
+    if (!order) {
+      res.status(404)
+      .json({ error: 'Order tidak ditemukan' });
+      return;
+    }
+    await order.destroy();
+    res.json({ message: 'Order kamu berhasil dihapus'});
+  });
+
 module.exports = router;
